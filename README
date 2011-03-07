@@ -1,0 +1,24 @@
+Manifest
+
+Scripts:
+---------------
+
+ Sorting algorithms in awk
+	 - awk/sorting/bubble_sort.awk
+	 - awk/sorting/selection_sort.awk
+
+ Bulk upload to mediawiki
+	 - shell/odd_and_ends/curl/curl_wiki.sh
+	 - shell/odd_and_ends/curl/script_invocation.txt
+
+ USB power management
+	 - shell/odd_and_ends/usb/poweroff-usbdisk.sh
+	 - shell/odd_and_ends/usb/poweron-usbdisk.sh
+
+
+APIs
+---------------
+
+ Google translate
+	 - python/apis/google/translate.py
+
