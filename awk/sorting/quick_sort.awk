@@ -29,12 +29,14 @@ function simple_quicksort(unsorted_str,unsorted_array,pivot,less_str,more_str)
 	print "******************************"
 	print "Called with "unsorted_str
 	# Split the space separated string into an array
+	
 	split(unsorted_str, unsorted_array, " ");
 
 	array_len = length(unsorted_array);
+	str_len = length(unsorted_str);
 
 	# No more sorting to be done. Break recursion
-	if (array_len <= 1){
+	if (array_len <= 1 || str_len <= 1 ){
 		print "Ending recursion with "unsorted_str
 		return unsorted_str
 	}
