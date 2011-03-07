@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-#Random number generator
+# Random number generator - bashism
 generate_random () { for i in $(seq $1); do echo -n "$RANDOM "; done }
 
 #How many integers to randomly generate
@@ -32,7 +32,6 @@ do
 		# Iterate over each line result totalling up the time spent,
 		# average it and print it out
 		done 2>&1 |grep -e "real"|cut -f 2|sed -e "s/[ms]/ /g" |awk  'BEGIN{total=0} {total= total + $1*60+$2} END{print "Average real time in seconds: "total/NR}'
-		echo ""
 	done
 done
 
