@@ -15,7 +15,7 @@ SORT_METHODS="bubble_sort.awk quick_sort.awk selection_sort.awk"
 for SET_SIZE in $SET_SIZES;
 do
 	#Generate the set
-	generate_random $SET_SIZE > random_ints;
+	generate_random $SET_SIZE > tmp/random_ints;
 
 	#Run an algorithm
 	for METHOD in $SORT_METHODS;
@@ -24,7 +24,7 @@ do
 		#For X rounds
 		for round in $(seq $ROUNDS); 
 		do 
-			time cat random_ints |awk -f $METHOD |grep -e "(real)"; 
+			time cat tmp/random_ints |awk -f $METHOD |grep -e "(real)"; 
 		# It becomes interesting here:
 		# Redirect the output of time from stderr to stdin
 		# Look up the real time, remove the minute and second parameters
