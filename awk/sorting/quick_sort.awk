@@ -28,8 +28,11 @@ function simple_quicksort(unsorted_str,unsorted_array,pivot,less_str,more_str)
 {
 
 	# Unpack from the str - space separated
-	print "******************************"
-	print "Called with "unsorted_str
+
+	if (debug >= 1){
+		print "******************************"
+		print "Called with "unsorted_str
+	}
 	# Split the space separated string into an array
 	
 	split(unsorted_str, unsorted_array, " ");
@@ -39,7 +42,7 @@ function simple_quicksort(unsorted_str,unsorted_array,pivot,less_str,more_str)
 
 	# No more sorting to be done. Break recursion
 	if (array_len <= 1 || str_len <= 1 ){
-		print "Ending recursion with "unsorted_str
+		#print "Ending recursion with "unsorted_str
 		return unsorted_str
 	}
 	# Pick a random value as pivot
@@ -96,7 +99,6 @@ function simple_quicksort(unsorted_str,unsorted_array,pivot,less_str,more_str)
 	less_str=""
 	less_length = length(less_arr)
 	num = 1
-	print "Less length: "less_length
 	while (num <= less_length){
 		less_str = less_str" "less_arr[num]	
 		num++;
@@ -123,8 +125,6 @@ function simple_quicksort(unsorted_str,unsorted_array,pivot,less_str,more_str)
 	delete less_arr
 	delete more_arr
 	delete unsorted_array
-	print "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
-	print ""
 	
 	return simple_quicksort(less_str) " "pivot" "simple_quicksort(more_str)
 
@@ -145,13 +145,12 @@ BEGIN{
 	# strings and recursively qsort them
 
 	#Simple version
-	sorted = simple_quicksort($0)
-	split(sorted, sorted_array, " ");
+	sorted_str = simple_quicksort($0)
 
 
 }
 
 END{
 	print "Sorted "NF" objects"; 
-	dump_array(sorted_array)
+	print sorted_str
 }

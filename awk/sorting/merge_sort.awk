@@ -8,6 +8,11 @@
 # generate_random () { for i in $(seq $1); do echo -n "$RANDOM "; done }
 # Sample invocation: generate_random 10 | awk -f this_file.awk
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
+# Fixes:
+# - It seems if we pass arrays using return, we get errors such as
+# - awk: merge_sort.awk:42: (FILENAME=- FNR=1) fatal: attempt to use array `return_array' in a scalar context
+# Use strings instead
+
 
 function dump_array(arr_arg){
 
@@ -20,140 +25,175 @@ function dump_array(arr_arg){
     # It fails. The following doesn't work
     while (dctr < arr_arg_len){
         print arr_arg[dctr++];
-        #print dctr" : "arr_arg[dctr++];
+        #print dctr":"arr_arg[dctr++];
     }; 
     ORS = RSEP;
     print "\n";
 }
 
 
-function merge_sort(unsorted_array,left_array, right_array, left_merge, right_merge, result_array, array_length)
+function merge_sort(unsorted_str, unsorted_array, left_array, right_array, left_merge, right_merge, result_str, array_length, left_str, left_length, right_str, right_length)
 {
-    array_length = length(unsorted_array)
-    print "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
-    print "Merge start with arr_length: "array_length;
-    print "Array looks like: "
-    dump_array(unsorted_array)
 
-    if (array_length <= 1){
-        #This is stupid
-        return_array[0] = unsorted_array[0]
-       return return_array;
+    # Field splits always begin at idx 1
+    split(unsorted_str, unsorted_array, " ");
+
+    array_length = length(unsorted_array);
+    str_len = length(unsorted_str);
+
+    if (debug >= 1){
+        print "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+        print "Called with string: "unsorted_str
+        print "Merge start with arr_length: "array_length;
+    }
+
+    if (array_length <= 1 || str_len <= 1){
+       return unsorted_str;
     }
     middle_idx = array_length / 2;
-    i = 0;
+    i = 1;
     left_idx = 0;
     right_idx = 0;
-    while(i < middle_idx){
+    while(i <= middle_idx){
+       #print "Appending: "unsorted_array[i]" at idx: "left_idx
        left_array[left_idx++] = unsorted_array[i++];
     }
-    while(i < array_length){
+    while(i <= array_length){
        right_array[right_idx++] = unsorted_array[i++];
     }
 
     # Delete vars
     #delete unsorted_array
 
-    print "Left Array: "
-    dump_array(left_array);
-    print "Right Array: "
-    dump_array(right_array);
+    if (debug >= 1){
+        print "Left Array: "
+        dump_array(left_array);
+        print "Right Array: "
+        dump_array(right_array);
+    }
 
-    left_merge = merge_sort(left_array);
-    right_merge = merge_sort(right_array);
-    result_array = merge(left_merge, right_merge);
-    print "#######################################"
-    return result
+    # Marshal array back to a string
+    left_str=""
+    array_length = length(left_array)
+    num = 0
+    #print "left length: "array_length
+    while (num < array_length){
+        left_str = left_str" "left_array[num++]	
+    }
+
+    # same thing for right
+    right_str=""
+    array_length = length(right_array) 
+    #print "right length: "array_length
+    num = 0
+    while (num < array_length){
+        right_str = right_str" "right_array[num++]
+    }
+
+    #print "Calling merge_sort with left: "left_str
+    #print "Calling merge_sort with right: "right_str
+
+    left_merge = merge_sort(left_str);
+    right_merge = merge_sort(right_str);
+    result_str = merge(left_merge, right_merge);
+
+    #print "#######################################"
+    return result_str
 }
 
-function merge(left_array, right_array, result_array)
+function merge(left_str, right_str, left_array, right_array, result_array, result_str)
 {
     result_idx = 0
-    left_idx = 0
-    right_idx = 0
+    left_idx = 1
+    right_idx = 1
 
+    split(left_str, left_array, " ");
+    split(right_str, right_array, " ");
     left_length = length(left_array)
     right_length = length(right_array)
 
-    print "-----------BEGIN-------------- "
-    print "Going to merge"
-    print "Left: "
-    dump_array(left_array);
-    print " - "
-    print "Right:"
-    dump_array(right_array);
+    if (debug >= 1){
+        print "-----------BEGIN-------------- "
+        print "Going to merge"
+        print "left length: "left_length " - str: "left_str
+        print "right length: "right_length " - str: "right_str
+    }
 
     while (left_length > 0  && right_length > 0 )
     {
-        if (left_array[0] > right_array[0])
+        #print "Comparing: "left_array[left_idx]" < "right_array[right_idx]
+        if (left_array[left_idx] < right_array[right_idx])
         {
             result_array[result_idx++] = left_array[left_idx];
             delete left_array[left_idx++];
+            left_length--;
         }
         else
         {
-                result_array[result_idx++] = right_array[right_idx];
-        delete right_array[right_idx++];
+            result_array[result_idx++] = right_array[right_idx];
+            delete right_array[right_idx++];
+            right_length--;
         }
     }
 
-
-    print "Partial Merge. Result now: "
-    dump_array(result_array);
-
+    if (debug >= 1){
+        print "Partial Merge. Result now: "
+        dump_array(result_array);
+    }
 
     left_length = length(left_array)
     right_length = length(right_array)
-    
+
     if (left_length > 0)
     {
-     print "Appending remainder of left to result"
-     dump_array(left_array);
-     while (left_length >= 0)
-     {
-          result_array[result_idx++] = left_array[left_idx++];
-          left_length--;
-     }
-    } 
-    
+        while (left_length >= 0)
+        {
+            result_array[result_idx++] = left_array[left_idx++];
+            left_length--;
+        }
+    }
+
     if (right_length > 0)
     {
-         print "Appending remainder of right to result"
-         dump_array(right_array);
-
          while (right_length >= 0)
          {
              result_array[result_idx++] = right_array[right_idx++];
              right_length--;
          }
-    } 
+    }
 
-    print "Complete Merge. Result now: "
-    dump_array(result_array);
-    print "+++++++++++BEGIN++++++++++++++ "
+    if (debug >= 1){
+        print "Complete Merge. Result now: "
+        dump_array(result_array);
+    }
 
-    return result
+    # Marshal array back to a string
+    result_str=""
+    result_length = length(result_array)
+    num = 0
+    #print "result length: "result_length
+    while (num < result_length){
+        result_str = result_str" "result_array[num++]	
+    }
+
+
+    return result_str
 }
 
 
 BEGIN{
     print "Merge Sort"
-    num = 1
 }
 
 {
     # print the unsorted objects
     print "Unsorted "NF" objects:\n"$0; 
 
-    # Put the random numbers into an array
-    while (num <= NF){ 
-        arr[num-1] = $num;
-        num++
-    };
-    merge_sort(arr)
+    sorted_str = merge_sort($0)
 
 }
 
 END{
     print "Sorted "NF" objects"; 
+    print sorted_str
 }
