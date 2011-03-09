@@ -3,6 +3,8 @@
 # pivot generating two sublists; one greater than pivot 
 # and the other less than pivot. Sort this two recursively.
 # See http://en.wikipedia.org/wiki/Quicksort#Simple_version
+# If you want debug invoke add a -v variable to awk such as 
+# awk -v debug=1 -f this_file.awk
 
 function dump_array(arr_arg){
 
