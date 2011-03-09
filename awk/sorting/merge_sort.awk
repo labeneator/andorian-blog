@@ -17,24 +17,21 @@
 function dump_array(arr_arg){
 
     arr_arg_len = length(arr_arg)
-    #print "Dumper has seen arr_arg_len: "arr_arg_len
     RSEP = ORS;
     ORS=" ";
     dctr = 0;
     # Do not use length(arr_arg) in place of arr_arg
-    # It fails. The following doesn't work
+    # It fails.
     while (dctr < arr_arg_len){
         print arr_arg[dctr++];
-        #print dctr":"arr_arg[dctr++];
-    }; 
+    };
     ORS = RSEP;
     print "\n";
 }
 
 
-function merge_sort(unsorted_str, unsorted_array, left_array, right_array, left_merge, right_merge, result_str, array_length, left_str, left_length, right_str, right_length)
+function merge_sort(unsorted_str, unsorted_array, left_array, right_array, left_merge, right_merge, result_str, array_length, left_str,  right_str)
 {
-
     # Field splits always begin at idx 1
     split(unsorted_str, unsorted_array, " ");
 
@@ -62,9 +59,6 @@ function merge_sort(unsorted_str, unsorted_array, left_array, right_array, left_
        right_array[right_idx++] = unsorted_array[i++];
     }
 
-    # Delete vars
-    #delete unsorted_array
-
     if (debug >= 1){
         print "Left Array: "
         dump_array(left_array);
@@ -76,34 +70,29 @@ function merge_sort(unsorted_str, unsorted_array, left_array, right_array, left_
     left_str=""
     array_length = length(left_array)
     num = 0
-    #print "left length: "array_length
     while (num < array_length){
         left_str = left_str" "left_array[num++]	
     }
 
-    # same thing for right
+    # Same thing for right array
     right_str=""
     array_length = length(right_array) 
-    #print "right length: "array_length
     num = 0
     while (num < array_length){
         right_str = right_str" "right_array[num++]
     }
 
-    #print "Calling merge_sort with left: "left_str
-    #print "Calling merge_sort with right: "right_str
-
     left_merge = merge_sort(left_str);
     right_merge = merge_sort(right_str);
     result_str = merge(left_merge, right_merge);
 
-    #print "#######################################"
     return result_str
 }
 
-function merge(left_str, right_str, left_array, right_array, result_array, result_str)
+function merge(left_str, right_str, left_array, right_array, result_array, result_str, left_length, right_length)
 {
     result_idx = 0
+    # Split arrays start at index 1
     left_idx = 1
     right_idx = 1
 
@@ -121,7 +110,6 @@ function merge(left_str, right_str, left_array, right_array, result_array, resul
 
     while (left_length > 0  && right_length > 0 )
     {
-        #print "Comparing: "left_array[left_idx]" < "right_array[right_idx]
         if (left_array[left_idx] < right_array[right_idx])
         {
             result_array[result_idx++] = left_array[left_idx];
@@ -146,7 +134,7 @@ function merge(left_str, right_str, left_array, right_array, result_array, resul
 
     if (left_length > 0)
     {
-        while (left_length >= 0)
+        while (left_length > 0)
         {
             result_array[result_idx++] = left_array[left_idx++];
             left_length--;
@@ -155,7 +143,7 @@ function merge(left_str, right_str, left_array, right_array, result_array, resul
 
     if (right_length > 0)
     {
-         while (right_length >= 0)
+         while (right_length > 0)
          {
              result_array[result_idx++] = right_array[right_idx++];
              right_length--;
@@ -171,11 +159,9 @@ function merge(left_str, right_str, left_array, right_array, result_array, resul
     result_str=""
     result_length = length(result_array)
     num = 0
-    #print "result length: "result_length
     while (num < result_length){
         result_str = result_str" "result_array[num++]	
     }
-
 
     return result_str
 }
