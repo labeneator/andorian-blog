@@ -5,11 +5,11 @@ generate_random () { for i in $(seq $1); do echo -n "$RANDOM "; done }
 
 #How many integers to randomly generate
 #SET_SIZES="100 500 "
-SET_SIZES=$(seq 100 100 1500)
+SET_SIZES=$(seq 100 100 2000)
 # How many iterations to run
 ROUNDS=10
 # what algorithms do we have?
-SORT_METHODS="bubble_sort.awk quick_sort.awk selection_sort.awk"
+SORT_METHODS="bubble_sort.awk quick_sort.awk selection_sort.awk merge_sort.awk heap_sort.awk"
 
 
 for SET_SIZE in $SET_SIZES;
