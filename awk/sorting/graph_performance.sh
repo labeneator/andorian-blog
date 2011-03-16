@@ -21,7 +21,8 @@ set xrange [0:];
 set title 'Sort performance';
 set xlabel 'Sort set size';
 set ylabel 'Time in seconds';
-plot './tmp/qsort.perf' using 2:3 smooth csplines title 'Quick sort', './tmp/ssort.perf' using 2:3 smooth csplines title 'Selection sort', './tmp/bsort.perf' using 2:3 smooth csplines title 'Bubble sort', './tmp/msort.perf' using 2:3 smooth csplines title 'Merge sort', './tmp/heap.perf' using 2:3 smooth csplines title 'Heap sort'
+plot './tmp/qsort.perf' using 2:3 smooth csplines title 'Quick sort', './tmp/msort.perf' using 2:3 smooth csplines title 'Merge sort', './tmp/heap.perf' using 2:3 smooth csplines title 'Heap sort'
 
 """|gnuplot
 
+#plot './tmp/qsort.perf' using 2:3 smooth csplines title 'Quick sort', './tmp/ssort.perf' using 2:3 smooth csplines title 'Selection sort', './tmp/bsort.perf' using 2:3 smooth csplines title 'Bubble sort', './tmp/msort.perf' using 2:3 smooth csplines title 'Merge sort', './tmp/heap.perf' using 2:3 smooth csplines title 'Heap sort'
