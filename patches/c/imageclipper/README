@@ -1,0 +1,10 @@
+Patches for  http://imageclipper.googlecode.com
+Fixes:
+* Use <cstudio.h> to fix
+  icformat.h:96: error: ‘sprintf’ is not a member of ‘std’
+* __END__ to __CV_END__
+* __BEGIN__ to __CV_BEGIN__
+* Makefile fixes
+
+
+
