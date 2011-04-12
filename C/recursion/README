@@ -15,7 +15,7 @@ Breakpoint 1 at 0x4005b9: file /home/lmwangi/learning/algo/recursions/recursion.
 (gdb)  break recursion.c:68
 Breakpoint 2 at 0x400601: file /home/lmwangi/learning/algo/recursions/recursion.c, line 68.
 
-* Run till the first breakpoint - Good old recursion. Notice that we have to step 4 times. 
+* Run till the first breakpoint - Good old recursion. Notice that we have to step 4 times, once for each deferred call.
 
 (gdb) run
 Starting program: /home/lmwangi/learning/algo/recursions/recursion 
@@ -43,7 +43,7 @@ Breakpoint 1, factorial (n=1) at /home/lmwangi/learning/algo/recursions/recursio
 main () at /home/lmwangi/learning/algo/recursions/recursion.c:32
 32              printf("Factorial %d\n", result);
 
-* Tail recursion. Notice that we step only once since the function has all the results from prior operations
+* Tail recursion. Notice that we step only once since the function has all the results from prior operations. No deferred calls.
 (gdb) cont
 Continuing.
 Factorial 120
