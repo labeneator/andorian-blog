@@ -1,0 +1,478 @@
+UnixModes
+
+#Tests
+$ test_read () { $(cat  2>/dev/null test.file > /dev/null ); if [ $? -eq 0 ];then echo "Read : True "; else echo "Read : False"; fi; }
+$ test_write () { $(echo 2>/dev/null -e '#!/bin/sh\necho hello' > test.file ); if [ $? -eq 0 ];then echo "Write: True "; else echo "Write: False"; fi; }
+$ test_exec () { $( ./test.file 2>/dev/null 1>/dev/null); if [ $? -eq 0 ];then echo "Exec : True "; else echo "Exec : False"; fi; }
+
+#touch a test.file
+$ ls -l test.file
+-rwx------ 1 lmwangi lmwangi 21 Apr 14 16:31 test.file
+
+# Test mode as user 
+$ for mode in $(seq -w 0 100 700); do echo "Mode $mode"; touch test.file; chmod $mode test.file; test_read; test_write; test_exec;echo;  done
+Mode 000
+Read : False
+Write: False
+Exec : False
+
+Mode 100
+Read : False
+Write: False
+Exec : False
+
+Mode 200
+Read : False
+Write: True 
+Exec : False
+
+Mode 300
+Read : False
+Write: True 
+Exec : False
+
+Mode 400
+Read : True 
+Write: False
+Exec : False
+
+Mode 500
+Read : True 
+Write: False
+Exec : True 
+
+Mode 600
+Read : True 
+Write: True 
+Exec : False
+
+Mode 700
+Read : True 
+Write: True 
+Exec : True 
+
+
+# File permissions like firewall acls stop at the first match. If I am the owner of the file, matching stops with the user bits. Groups/others are never consulted... So we chgrp of file to a group you are not on say root and test.
+$ sudo chgrp root test.file 
+$ ls -l
+total 4
+----rwx--- 1 lmwangi root 21 Apr 14 16:36 test.file
+
+$ for mode in $(seq -w 0 010 070); do echo "Mode $mode"; touch test.file; chmod $mode test.file; test_read; test_write; test_exec;echo;  done
+Mode 000
+Read : False
+Write: False
+Exec : False
+
+Mode 010
+Read : False
+Write: False
+Exec : False
+
+Mode 020
+Read : False
+Write: False
+Exec : False
+
+Mode 030
+Read : False
+Write: False
+Exec : False
+
+Mode 040
+Read : False
+Write: False
+Exec : False
+
+Mode 050
+Read : False
+Write: False
+Exec : False
+
+Mode 060
+Read : False
+Write: False
+Exec : False
+
+Mode 070
+Read : False
+Write: False
+Exec : False
+
+# It get's interesting if I am not the owner of the file but I am in a group that owns the file.
+$ id
+uid=1000(lmwangi) gid=1000(lmwangi) groups=1000(lmwangi),20(dialout),24(cdrom),25(floppy),29(audio),44(video),46(plugdev),112(netdev),114(fuse),119(libvirt),1003(packetcapture)
+$ ls -l
+total 4
+----rwx--- 1 root lmwangi 21 Apr 14 16:42 test.file
+
+for mode in $(seq -w 0 010 070); do echo "Mode $mode"; sudo chmod $mode test.file; test_read; test_write; test_exec;echo;  done
+Mode 000
+Read : False
+Write: False
+Exec : False
+
+Mode 010
+Read : False
+Write: False
+Exec : False
+
+Mode 020
+Read : False
+Write: True 
+Exec : False
+
+Mode 030
+Read : False
+Write: True 
+Exec : False
+
+Mode 040
+Read : True 
+Write: False
+Exec : False
+
+Mode 050
+Read : True 
+Write: False
+Exec : True 
+
+Mode 060
+Read : True 
+Write: True 
+Exec : False
+
+Mode 070
+Read : True 
+Write: True 
+Exec : True 
+
+#The same principle applies. Others mode only applies if I am neither the file owner nor in a group that owns the file.
+$ for mode in $(seq -w 0 001 007); do echo "Mode $mode"; sudo chmod $mode test.file; test_read; test_write; test_exec;echo;  done
+Mode 000
+Read : False
+Write: False
+Exec : False
+
+Mode 001
+Read : False
+Write: False
+Exec : False
+
+Mode 002
+Read : False
+Write: True 
+Exec : False
+
+Mode 003
+Read : False
+Write: True 
+Exec : False
+
+Mode 004
+Read : True 
+Write: False
+Exec : False
+
+Mode 005
+Read : True 
+Write: False
+Exec : True 
+
+Mode 006
+Read : True 
+Write: True 
+Exec : False
+
+Mode 007
+Read : True 
+Write: True 
+Exec : True 
+
+#It gets better with executables :)
+# Let's make a small template executable
+$  echo -e '#include <stdio.h>\nint main(){printf("hello\\n"); return 0;}' > hello.c && gcc hello.c -o hello
+$ ./hello 
+hello
+# Now watch mode 100 compare with the a shell script of mode 100. Do the same for 300, 500 & 700
+Mode 000
+Read : False
+Write: False
+Exec : False
+
+Mode 100
+Read : False
+Write: False
+Exec : True 
+
+Mode 200
+Read : False
+Write: True 
+Exec : False
+
+Mode 300
+Read : False
+Write: True 
+Exec : True 
+
+Mode 400
+Read : True 
+Write: False
+Exec : False
+
+Mode 500
+Read : True 
+Write: False
+Exec : True 
+
+Mode 600
+Read : True 
+Write: True 
+Exec : False
+
+Mode 700
+Read : True 
+Write: True 
+Exec : True 
+
+# As can be seen. You must have r & x to exec a shell script while your require only x for a binary.
+# Recap again
+$ for mode in $(seq -w 0 100 700); do echo $mode; chmod $mode test.file; ls -l test.file |grep test.file; ./test.file; done
+000
+---------- 1 lmwangi lmwangi 6695 Apr 14 17:06 test.file
+-bash: ./test.file: Permission denied
+100
+---x------ 1 lmwangi lmwangi 6695 Apr 14 17:06 test.file
+hello
+200
+--w------- 1 lmwangi lmwangi 6695 Apr 14 17:06 test.file
+-bash: ./test.file: Permission denied
+300
+--wx------ 1 lmwangi lmwangi 6695 Apr 14 17:06 test.file
+hello
+400
+-r-------- 1 lmwangi lmwangi 6695 Apr 14 17:06 test.file
+-bash: ./test.file: Permission denied
+500
+-r-x------ 1 lmwangi lmwangi 6695 Apr 14 17:06 test.file
+hello
+600
+-rw------- 1 lmwangi lmwangi 6695 Apr 14 17:06 test.file
+-bash: ./test.file: Permission denied
+700
+-rwx------ 1 lmwangi lmwangi 6695 Apr 14 17:06 test.file
+hello
+
+
+# Now let's look at the  setuid/setgid/sticky bits. 
+1 = Sticky - if set not relevant in a binary in my system [Linux]
+2 = SetGID - if set the progran runs with eGID set to the binary group
+4 = SetUID - if set the program runs with euid set tot the binary owner.
+
+# Let's make a program that shows us the uid, effective uid, gid and effective gid
+$ echo -e '#include <stdio.h>\n#include <unistd.h>\nint main(){printf("hello\\nUID:%d\\nEUID:%d\\nGID:%d\\nEGID:%d\\n",getuid(),geteuid(),getgid(),getegid()); return 0;}' > hello.c && gcc hello.c -o hello                                                      
+
+$ ./hello 
+hello
+UID:1000
+EUID:1000
+GID:1000
+EGID:1000
+
+$ id
+uid=1000(lmwangi) gid=1000(lmwangi) groups=1000(lmwangi),20(dialout),24(cdrom),25(floppy),29(audio),44(video),46(plugdev),112(netdev),114(fuse),119(libvirt),1003(packetcapture)
+
+$ for owner in lmwangi:lmwangi lmwangi:root root:lmwangi root:root; do echo ">>>> $owner <<<<"; for mode in 1777 2777 4777 6777; do echo "mode $mode"; cp hello test.file ; sudo chown $owner test.file; sudo chmod $mode test.file; ls -l test.file; ./test.file;echo; done;  done
+>>>> lmwangi:lmwangi <<<<
+mode 1777
+-rwxrwxrwt 1 lmwangi lmwangi 7205 Apr 14 17:31 test.file
+hello
+UID:1000
+EUID:1000
+GID:1000
+EGID:1000
+
+mode 2777
+-rwxrwsrwx 1 lmwangi lmwangi 7205 Apr 14 17:31 test.file
+hello
+UID:1000
+EUID:1000
+GID:1000
+EGID:1000
+
+mode 4777
+-rwsrwxrwx 1 lmwangi lmwangi 7205 Apr 14 17:31 test.file
+hello
+UID:1000
+EUID:1000
+GID:1000
+EGID:1000
+
+mode 6777
+-rwsrwsrwx 1 lmwangi lmwangi 7205 Apr 14 17:31 test.file
+hello
+UID:1000
+EUID:1000
+GID:1000
+EGID:1000
+
+>>>> lmwangi:root <<<<
+mode 1777
+-rwxrwxrwt 1 lmwangi root 7205 Apr 14 17:31 test.file
+hello
+UID:1000
+EUID:1000
+GID:1000
+EGID:1000
+
+mode 2777
+-rwxrwsrwx 1 lmwangi root 7205 Apr 14 17:31 test.file
+hello
+UID:1000
+EUID:1000
+GID:1000
+EGID:0
+
+mode 4777
+-rwsrwxrwx 1 lmwangi root 7205 Apr 14 17:31 test.file
+hello
+UID:1000
+EUID:1000
+GID:1000
+EGID:1000
+
+mode 6777
+-rwsrwsrwx 1 lmwangi root 7205 Apr 14 17:31 test.file
+hello
+UID:1000
+EUID:1000
+GID:1000
+EGID:0
+
+>>>> root:lmwangi <<<<
+mode 1777
+-rwxrwxrwt 1 root lmwangi 7205 Apr 14 17:31 test.file
+hello
+UID:1000
+EUID:1000
+GID:1000
+EGID:1000
+
+mode 2777
+-rwxrwsrwx 1 root lmwangi 7205 Apr 14 17:31 test.file
+hello
+UID:1000
+EUID:1000
+GID:1000
+EGID:1000
+
+mode 4777
+-rwsrwxrwx 1 root lmwangi 7205 Apr 14 17:31 test.file
+hello
+UID:1000
+EUID:0
+GID:1000
+EGID:1000
+
+mode 6777
+-rwsrwsrwx 1 root lmwangi 7205 Apr 14 17:31 test.file
+hello
+UID:1000
+EUID:0
+GID:1000
+EGID:1000
+
+>>>> root:root <<<<
+mode 1777
+-rwxrwxrwt 1 root root 7205 Apr 14 17:31 test.file
+hello
+UID:1000
+EUID:1000
+GID:1000
+EGID:1000
+
+mode 2777
+-rwxrwsrwx 1 root root 7205 Apr 14 17:31 test.file
+hello
+UID:1000
+EUID:1000
+GID:1000
+EGID:0
+
+mode 4777
+-rwsrwxrwx 1 root root 7205 Apr 14 17:31 test.file
+hello
+UID:1000
+EUID:0
+GID:1000
+EGID:1000
+
+mode 6777
+-rwsrwsrwx 1 root root 7205 Apr 14 17:31 test.file
+hello
+UID:1000
+EUID:0
+GID:1000
+EGID:0
+
+# Sticky bit (RESTRICTED DELETION FLAG) on directories 
+
+$ mkdir test; sudo chown root:root test; sudo chmod 1777 test; ls -l |grep test
+drwxrwxrwt 2 root    root    4096 Apr 14 17:39 test
+-rwsrwsrwx 1 root    root    7205 Apr 14 17:31 test.file
+
+$ echo lmwangi > test/by_lmwangi
+$ ls -l test/
+total 4
+-rw-r--r-- 1 lmwangi lmwangi 8 Apr 14 17:41 by_lmwangi
+
+# No one can remove the file
+$ sudo su guest -c "rm test/by_lmwangi"
+rm: remove write-protected regular file `test/by_lmwangi'? y
+rm: cannot remove `test/by_lmwangi': Operation not permitted
+
+#Root can  override though
+$ sudo rm test/by_lmwangi 
+
+Or the owner of the test dir
+$ rm -rf test
+$ mkdir test
+$ chmod 1777 test
+$ sudo su guest -c "echo hello > test/by_guest"
+$ ls -l test
+total 4
+-rw-r--r-- 1 guest guest 6 Apr 14 17:38 by_guest
+$ ls -l |grep test
+drwxrwxrwt 2 lmwangi lmwangi 4096 Apr 14 17:38 test
+-rwsrwsrwx 1 root    root    7205 Apr 14 17:31 test.file
+$ cat test/by_guest 
+hello
+$ rm test/by_guest 
+rm: remove write-protected regular file `test/by_guest'? y
+$ ls -l test
+total 0
+
+#and we go out with a bang
+#setuid on dir == no change on files
+$ rm -rf test && mkdir test; sudo chown root:root test; sudo chmod 4777 test; ls -l|grep test
+$ cd test/
+$ touch aha
+$ ls -l
+total 0
+-rw-r--r-- 1 lmwangi lmwangi 0 Apr 14 17:46 aha
+$ cd ..
+
+#but setgid on dir == changes any file created in it to the group owning the dir
+$ rm -rf test && mkdir test; sudo chown root:root test; sudo chmod 2777 test; ls -l|grep test
+drwxrwsrwx 2 root    root    4096 Apr 14 17:47 test
+-rwsrwsrwx 1 root    root    7205 Apr 14 17:31 test.file
+$ cd test/
+$ touch aha
+$ ls -l
+total 0
+-rw-r--r-- 1 lmwangi root 0 Apr 14 17:47 aha
+$ id
+uid=1000(lmwangi) gid=1000(lmwangi) groups=1000(lmwangi),20(dialout),24(cdrom),25(floppy),29(audio),44(video),46(plugdev),112(netdev),114(fuse),119(libvirt),1003(packetcapture)
+
+
+
