@@ -1,0 +1,85 @@
+A look at the difference between plain old recursion and tail recursion.
+
+* Compile recursion.c
+* Fire up GDB
+
+$ gdb recursion
+GNU gdb (GDB) 7.2-debian
+.....
+(gdb) 
+
+* Set up breakpoints at recursion termination points
+
+(gdb)  break recursion.c:50
+Breakpoint 1 at 0x4005b9: file /home/lmwangi/learning/algo/recursions/recursion.
+c, line 50.
+(gdb)  break recursion.c:68
+Breakpoint 2 at 0x400601: file /home/lmwangi/learning/algo/recursions/recursion.
+c, line 68.
+
+* Run till the first breakpoint - Good old recursion. Notice that we have to ste
+p 4 times, once for each deferred call.
+
+(gdb) run
+Starting program: /home/lmwangi/learning/algo/recursions/recursion 
+
+Breakpoint 1, factorial (n=1) at /home/lmwangi/learning/algo/recursions/recursio
+n.c:50
+50                      return 1;
+(gdb) bt
+#0  factorial (n=1) at /home/lmwangi/learning/algo/recursions/recursion.c:50
+#1  0x00000000004005cd in factorial (n=2) at /home/lmwangi/learning/algo/recursi
+ons/recursion.c:53
+#2  0x00000000004005cd in factorial (n=3) at /home/lmwangi/learning/algo/recursi
+ons/recursion.c:53
+#3  0x00000000004005cd in factorial (n=4) at /home/lmwangi/learning/algo/recursi
+ons/recursion.c:53
+#4  0x00000000004005cd in factorial (n=5) at /home/lmwangi/learning/algo/recursi
+ons/recursion.c:53
+#5  0x0000000000400544 in main () at /home/lmwangi/learning/algo/recursions/recu
+rsion.c:30
+(gdb) step
+56      }
+(gdb) step
+56      }
+(gdb) step
+56      }
+(gdb) step
+56      }
+(gdb) step
+56      }
+(gdb) step
+main () at /home/lmwangi/learning/algo/recursions/recursion.c:32
+32              printf("Factorial %d\n", result);
+
+* Tail recursion. Notice that we step only once since the function has all the r
+esults from prior operations. No deferred calls.
+(gdb) cont
+Continuing.
+Factorial 120
+
+Breakpoint 2, tail_factorial (n=1, a=120) at /home/lmwangi/learning/algo/recursi
+ons/recursion.c:68
+68                      return a;
+(gdb) bt
+#0  tail_factorial (n=1, a=120) at /home/lmwangi/learning/algo/recursions/recurs
+ion.c:68
+#1  0x000000000040061c in tail_factorial (n=2, a=60) at /home/lmwangi/learning/a
+lgo/recursions/recursion.c:71
+#2  0x000000000040061c in tail_factorial (n=3, a=20) at /home/lmwangi/learning/a
+lgo/recursions/recursion.c:71
+#3  0x000000000040061c in tail_factorial (n=4, a=5) at /home/lmwangi/learning/al
+go/recursions/recursion.c:71
+#4  0x000000000040061c in tail_factorial (n=5, a=1) at /home/lmwangi/learning/al
+go/recursions/recursion.c:71
+#5  0x000000000040056d in main () at /home/lmwangi/learning/algo/recursions/recu
+rsion.c:34
+(gdb) step
+73      }
+(gdb) step
+main () at /home/lmwangi/learning/algo/recursions/recursion.c:36
+36              printf("Tail Factorial %d\n", result);
+(gdb)  
+
+
+

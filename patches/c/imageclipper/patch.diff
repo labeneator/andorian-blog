@@ -1,0 +1,600 @@
+Index: opencvx/cvparticle.h
+===================================================================
+--- opencvx/cvparticle.h	(revision 102)
++++ opencvx/cvparticle.h	(working copy)
+@@ -188,7 +188,7 @@
+     int i, j;
+     CvScalar avg;
+     CV_FUNCNAME( "cvParticleMeanParticle" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+     CV_ASSERT( meanstate->rows == p->num_states && meanstate->cols == 1 );
+     if( !p->logprob )
+     {
+@@ -216,7 +216,7 @@
+     cvReleaseMat( &mul );
+     if( probs != p->particle_probs )
+         cvReleaseMat( &probs );
+-    __END__;
++    __CV_END__;
+ }
+ 
+ /**
+@@ -426,12 +426,12 @@
+ void cvParticleSetBound( CvParticle* p, const CvMat* bound )
+ {
+     CV_FUNCNAME( "cvParticleSetBound" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+     CV_ASSERT( p->num_states == bound->rows );
+     CV_ASSERT( 3 == bound->cols );
+     //cvCopy( bound, p->bound );
+     cvConvert( bound, p->bound );
+-    __END__;
++    __CV_END__;
+ }
+ 
+ /**
+@@ -445,12 +445,12 @@
+ void cvParticleSetNoise( CvParticle* p, CvRNG rng, const CvMat* std )
+ {
+     CV_FUNCNAME( "cvParticleSetNoise" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+     CV_ASSERT( p->num_states == std->rows );
+     p->rng = rng;
+     //cvCopy( std, p->std );
+     cvConvert( std, p->std );
+-    __END__;
++    __CV_END__;
+ }
+ 
+ /**
+@@ -463,12 +463,12 @@
+ void cvParticleSetDynamics( CvParticle* p, const CvMat* dynamics )
+ {
+     CV_FUNCNAME( "cvParticleSetDynamics" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+     CV_ASSERT( p->num_states == dynamics->rows );
+     CV_ASSERT( p->num_states == dynamics->cols );
+     //cvCopy( dynamics, p->dynamics );
+     cvConvert( dynamics, p->dynamics );
+-    __END__;
++    __CV_END__;
+ }
+ 
+ /**
+@@ -481,7 +481,7 @@
+ {
+     CvParticle *p = NULL;
+     CV_FUNCNAME( "cvReleaseParticle" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+     p = *particle;
+     if( !p ) EXIT;
+     
+@@ -491,7 +491,7 @@
+     CV_CALL( cvReleaseMat( &p->particles ) );
+     CV_CALL( cvReleaseMat( &p->probs ) );
+     CV_CALL( cvFree( &p ) );
+-    __END__;
++    __CV_END__;
+ }
+ 
+ /**
+@@ -508,7 +508,7 @@
+ {
+     CvParticle *p = NULL;
+     CV_FUNCNAME( "cvCreateParticle" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+     CV_ASSERT( num_states > 0 );
+     CV_ASSERT( num_observes > 0 );
+     CV_ASSERT( num_particles > 0 );
+@@ -532,7 +532,7 @@
+ 
+     cvZero( p->bound );
+ 
+-    __END__;
++    __CV_END__;
+     return p;
+ }
+ 
+Index: opencvx/cvinvaffine.h
+===================================================================
+--- opencvx/cvinvaffine.h	(revision 102)
++++ opencvx/cvinvaffine.h	(working copy)
+@@ -41,7 +41,7 @@
+ CVAPI(void) cvInvAffine( const CvMat* affine, CvMat* invaffine )
+ {
+     CV_FUNCNAME( "cvCreateAffine" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+     CV_ASSERT( affine->rows == 2 && affine->cols == 3 );
+     CV_ASSERT( invaffine->rows == 2 && invaffine->cols == 3 );
+     CV_ASSERT( affine->type == invaffine->type );
+@@ -55,7 +55,7 @@
+     cvSetRows( InvAffine, invaffine, 0, 2 );
+     cvReleaseMat( &Affine );
+     cvReleaseMat( &InvAffine );
+-    __END__;
++    __CV_END__;
+ }
+ 
+ #endif
+Index: opencvx/cvcat.h
+===================================================================
+--- opencvx/cvcat.h	(revision 102)
++++ opencvx/cvcat.h	(working copy)
+@@ -61,7 +61,7 @@
+     CvMat *src2 = (CvMat*)src2arr, src2stub;
+     CvMat *dst  = (CvMat*)dstarr, dststub;
+     CV_FUNCNAME( "cvCat" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+     if( !CV_IS_MAT(src1) )
+     {
+         src1 = cvGetMat( src1, &src1stub, &coi );
+@@ -117,7 +117,7 @@
+         cvSetRows( src1, dst, 0, src1->rows );
+         cvSetRows( src2, dst, src1->rows, src1->rows + src2->rows );
+     }
+-    __END__;
++    __CV_END__;
+ }
+ 
+ 
+Index: opencvx/cvgmmpdf.h
+===================================================================
+--- opencvx/cvgmmpdf.h	(revision 102)
++++ opencvx/cvgmmpdf.h	(working copy)
+@@ -71,7 +71,7 @@
+     int K = means->cols;
+     int type = samples->type;
+     CV_FUNCNAME( "cvMatGmmPdf" ); // error handling
+-    __BEGIN__;
++    __CV_BEGIN__;
+     CV_ASSERT( CV_IS_MAT(samples) );
+     CV_ASSERT( CV_IS_MAT(means) );
+     for( int k = 0; k < K; k++ )
+@@ -110,7 +110,7 @@
+     cvReleaseMat( &mean );
+     cvReleaseMat( &_probs );
+ 
+-    __END__;
++    __CV_END__;
+ }
+ 
+ /**
+Index: opencvx/cvmxmatconv.h
+===================================================================
+--- opencvx/cvmxmatconv.h	(revision 102)
++++ opencvx/cvmxmatconv.h	(working copy)
+@@ -61,7 +61,7 @@
+     mxClassID classid; mxArray* mxarr = NULL;
+     int row, col, ch;
+ 
+-    __BEGIN__;
++    __CV_BEGIN__;
+     if (!CV_IS_IMAGE(img)) {
+         CV_CALL(img = cvGetImage(img, &imghdr));
+     }
+@@ -105,7 +105,7 @@
+             }
+         }
+     }
+-    __END__;
++    __CV_END__;
+     return mxarr;
+ }
+ 
+@@ -129,7 +129,7 @@
+     mxClassID classid;
+     int row, col, ch;
+ 
+-    __BEGIN__;
++    __CV_BEGIN__;
+     classid = mxGetClassID(mxarr);
+     nDim = mxGetNumberOfDimensions(mxarr);
+     dims = mxGetDimensions(mxarr);
+@@ -168,7 +168,7 @@
+             }
+         }
+     }
+-    __END__;
++    __CV_END__;
+     return img;
+ }
+ 
+Index: opencvx/cvcreateaffine.h
+===================================================================
+--- opencvx/cvcreateaffine.h	(revision 102)
++++ opencvx/cvcreateaffine.h	(working copy)
+@@ -59,7 +59,7 @@
+     double c, s;
+     CvMat *R, *S, *A, hdr;
+     CV_FUNCNAME( "cvCreateAffine" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+     CV_ASSERT( rect.width > 0 && rect.height > 0 );
+     CV_ASSERT( affine->rows == 2 && affine->cols == 3 );
+ 
+@@ -93,7 +93,7 @@
+ 
+     cvReleaseMat( &R );
+     cvReleaseMat( &S );
+-    __END__;
++    __CV_END__;
+ }
+ 
+ 
+Index: opencvx/cvgausspdf.h
+===================================================================
+--- opencvx/cvgausspdf.h	(revision 102)
++++ opencvx/cvgausspdf.h	(working copy)
+@@ -71,7 +71,7 @@
+     int N = samples->cols;
+     int type = samples->type;
+     CV_FUNCNAME( "cvMatGaussPdf" ); // error handling
+-    __BEGIN__;
++    __CV_BEGIN__;
+     CV_ASSERT( CV_IS_MAT(samples) );
+     CV_ASSERT( CV_IS_MAT(mean) );
+     CV_ASSERT( CV_IS_MAT(cov) );
+@@ -114,7 +114,7 @@
+     cvReleaseMat( &subsample_T );
+     cvReleaseMat( &value );
+ 
+-    __END__;
++    __CV_END__;
+ }
+ 
+ /**
+Index: opencvx/cvgaussnorm.h
+===================================================================
+--- opencvx/cvgaussnorm.h	(revision 102)
++++ opencvx/cvgaussnorm.h	(working copy)
+@@ -65,7 +65,7 @@
+     CvMat *tmp_in;
+     CvMat *sub_in;
+     CV_FUNCNAME( "cvImgGaussNorm" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+     if( !CV_IS_MAT(in) )
+     {
+         CV_CALL( in = cvGetMat( in, &instub, &coi ) );
+@@ -117,7 +117,7 @@
+         cvReleaseMat( &tmp_in );
+     }
+     cvReleaseMat( &sub_in );
+-    __END__;
++    __CV_END__;
+ }
+ 
+ 
+Index: opencvx/cvpcadiffs.h
+===================================================================
+--- opencvx/cvpcadiffs.h	(revision 102)
++++ opencvx/cvpcadiffs.h	(working copy)
+@@ -113,7 +113,7 @@
+     CvMat *subsamples0, subsamples0hdr;
+     CvScalar rho;
+     CV_FUNCNAME( "cvMatPcaDiffs" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+     CV_ASSERT( CV_IS_MAT(samples) );
+     CV_ASSERT( CV_IS_MAT(avg) );
+     CV_ASSERT( CV_IS_MAT(eigenvalues) );
+@@ -210,7 +210,7 @@
+     if( D == eigenvectors->rows ) {
+         cvReleaseMat( &_eigenvectors );
+     }
+-    __END__;
++    __CV_END__;
+ }
+ 
+ /**
+Index: opencvx/cvcreateaffineimage.h
+===================================================================
+--- opencvx/cvcreateaffineimage.h	(revision 102)
++++ opencvx/cvcreateaffineimage.h	(working copy)
+@@ -92,7 +92,7 @@
+     CvPoint pt[4];
+     CvMat* invaffine;
+     CV_FUNCNAME( "cvAffineImage" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+     CV_ASSERT( src->depth == IPL_DEPTH_8U );
+     CV_ASSERT( affine->rows == 2 && affine->cols == 3 );
+ 
+@@ -171,7 +171,7 @@
+         }
+     }
+     cvReleaseMat( &invaffine );
+-    __END__;
++    __CV_END__;
+     return dst;
+ }
+ 
+Index: opencvx/cvbackground.h
+===================================================================
+--- opencvx/cvbackground.h	(revision 102)
++++ opencvx/cvbackground.h	(working copy)
+@@ -42,7 +42,7 @@
+ CVAPI(void) cvBackground( const IplImage* _img, const IplImage* _ref, IplImage* _mask, int thresh )
+ {
+     CV_FUNCNAME( "cvBackground" ); // error handling
+-    __BEGIN__;
++    __CV_BEGIN__;
+     CV_ASSERT( _img->width == _ref->width );
+     CV_ASSERT( _img->width == _mask->width );
+     CV_ASSERT( _img->height == _ref->height );
+@@ -80,7 +80,7 @@
+     cvReleaseImage( &img );
+     cvReleaseImage( &ref );
+     cvReleaseImage( &mask );
+-    __END__;
++    __CV_END__;
+ }
+ 
+ /*
+Index: opencvx/cvcropimageroi.h
+===================================================================
+--- opencvx/cvcropimageroi.h	(revision 102)
++++ opencvx/cvcropimageroi.h	(working copy)
+@@ -61,7 +61,7 @@
+     CvRect rect = cvRectFromRect32f( rect32f );
+     float angle = rect32f.angle;
+     CV_FUNCNAME( "cvCropImageROI" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+     CV_ASSERT( rect.width > 0 && rect.height > 0 );
+     CV_ASSERT( dst->width == rect.width );
+     CV_ASSERT( dst->height == rect.height );
+@@ -132,7 +132,7 @@
+         cvReleaseMat( &xy );
+         cvReleaseMat( &xyp );
+     }
+-    __END__;
++    __CV_END__;
+ }
+ 
+ /**
+Index: opencvx/cvdrawrectangle.h
+===================================================================
+--- opencvx/cvdrawrectangle.h	(revision 102)
++++ opencvx/cvdrawrectangle.h	(working copy)
+@@ -81,7 +81,7 @@
+     CvRect rect = cvRectFromRect32f( rect32f );
+     float angle = rect32f.angle;
+     CV_FUNCNAME( "cvDrawRectangle" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+     CV_ASSERT( rect.width > 0 && rect.height > 0 );
+ 
+     if( angle == 0 && shear.x == 0 && shear.y == 0 )
+@@ -174,7 +174,7 @@
+         cvReleaseMat( &xy );
+         cvReleaseMat( &xyp );
+     }
+-    __END__;
++    __CV_END__;
+ }
+ 
+ /**
+Index: opencvx/cvsetcol.h
+===================================================================
+--- opencvx/cvsetcol.h	(revision 102)
++++ opencvx/cvsetcol.h	(working copy)
+@@ -65,7 +65,7 @@
+     CvMat *refmat, refmathdr;
+     int cols;
+     CV_FUNCNAME( "cvSetCols" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+     if( !CV_IS_MAT(dstmat) )
+     {
+         CV_CALL( dstmat = cvGetMat( dstmat, &dstmatstub, &coi ) );
+@@ -88,14 +88,14 @@
+         refmat = cvGetCols( srcmat, &refmathdr, start_col, end_col );
+         cvCopy( refmat, dstmat );
+     }
+-    __END__;
++    __CV_END__;
+ }
+ 
+ /*
+ CVAPI( void ) cvSetCols( const CvArr* subarr, CvArr* arr, int start_col, int end_col )
+ {
+ CV_FUNCNAME( "cvSetCols" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+     int col, row, elem;
+     int coi = 0;
+     CvMat* submat = (CvMat*)subarr, submatstub;
+@@ -129,7 +129,7 @@
+             }
+         }
+     }
+-    __END__;
++    __CV_END__;
+ }
+ */
+ 
+Index: opencvx/cvskincolorgmm.h
+===================================================================
+--- opencvx/cvskincolorgmm.h	(revision 102)
++++ opencvx/cvskincolorgmm.h	(working copy)
+@@ -55,7 +55,7 @@
+ void cvSkinColorGmm( const IplImage* _img, IplImage* mask, double threshold, IplImage* probs )
+ {
+     CV_FUNCNAME( "cvSkinColorGmm" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+     const int N = _img->height * _img->width;
+     const int D = 3;
+     const int K = 16;
+@@ -163,7 +163,7 @@
+     cvReleaseMat( &Mask );
+     cvReleaseImage( &img );
+ 
+-    __END__;
++    __CV_END__;
+ }
+ 
+ 
+Index: opencvx/cvlogsum.h
+===================================================================
+--- opencvx/cvlogsum.h	(revision 102)
++++ opencvx/cvlogsum.h	(working copy)
+@@ -51,7 +51,7 @@
+     CvScalar sumval;
+     CvScalar minval, maxval;
+     CV_FUNCNAME( "cvLogSum" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+ 
+     if( !CV_IS_IMAGE(img) )
+     {
+@@ -78,7 +78,7 @@
+     }
+     cvReleaseImage( &tmp );
+     cvReleaseImage( &tmp2 );
+-    __END__;
++    __CV_END__;
+     return sumval;
+ }
+ 
+Index: opencvx/cvsetrow.h
+===================================================================
+--- opencvx/cvsetrow.h	(revision 102)
++++ opencvx/cvsetrow.h	(working copy)
+@@ -68,7 +68,7 @@
+     CvMat *refmat, refmathdr;
+     int rows;
+     CV_FUNCNAME( "cvSetRows" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+     if( !CV_IS_MAT(dstmat) )
+     {
+         CV_CALL( dstmat = cvGetMat( dstmat, &dstmatstub, &coi ) );
+@@ -91,13 +91,13 @@
+         refmat = cvGetRows( srcmat, &refmathdr, start_row, end_row, delta_row );
+         cvCopy( refmat, dstmat );
+     }
+-    __END__;
++    __CV_END__;
+ }
+ /*
+ CVAPI( void ) cvSetRows( const CvArr* subarr, CvArr* arr, int start_row, int end_row )
+ {
+     CV_FUNCNAME( "cvSetRows" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+     int row, col, elem;
+     int coi = 0;
+     CvMat* submat = (CvMat*)subarr, submatstub;
+@@ -137,7 +137,7 @@
+             }
+         }
+     }
+-    __END__;
++    __CV_END__;
+ }
+ */
+ 
+Index: opencvx/cvputimageroi.h
+===================================================================
+--- opencvx/cvputimageroi.h	(revision 102)
++++ opencvx/cvputimageroi.h	(working copy)
+@@ -72,7 +72,7 @@
+     IplImage* _src = NULL;
+     IplImage* _mask = NULL;
+     CV_FUNCNAME( "cvPutImageROI" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+     rect = cvRectFromRect32f( rect32f );
+     angle = rect32f.angle;
+ 
+@@ -167,7 +167,7 @@
+         cvReleaseImage( &_mask );
+     if( src != _src )
+         cvReleaseImage( &_src );
+-    __END__;
++    __CV_END__;
+ }
+ 
+ #endif
+Index: opencvx/cvskincolorcbcr.h
+===================================================================
+--- opencvx/cvskincolorcbcr.h	(revision 102)
++++ opencvx/cvskincolorcbcr.h	(working copy)
+@@ -40,7 +40,7 @@
+ void cvSkinColorCrCb( const IplImage* _img, IplImage* mask, CvArr* distarr )
+ {
+     CV_FUNCNAME( "cvSkinColorCbCr" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+     int width  = _img->width;
+     int height = _img->height;
+     CvMat* dist = (CvMat*)distarr, diststub;
+@@ -132,7 +132,7 @@
+             }
+         }
+     }
+-    __END__;
++    __CV_END__;
+ }
+ 
+ 
+Index: opencvx/cvprintmat.h
+===================================================================
+--- opencvx/cvprintmat.h	(revision 102)
++++ opencvx/cvprintmat.h	(working copy)
+@@ -75,7 +75,7 @@
+ CV_INLINE void cvPrintMat( const CvArr* arr, bool transpose )
+ {
+     CV_FUNCNAME( "cvPrintMat" );
+-    __BEGIN__;
++    __CV_BEGIN__;
+     int row, col, ch;
+     int coi = 0;
+     CvMat matstub, *mat = (CvMat*)arr;
+@@ -114,7 +114,7 @@
+         printf("\n");
+     }
+     fflush( stdout );
+-    __END__;
++    __CV_END__;
+ }
+ 
+ 
+Index: imageclipper.cpp
+===================================================================
+--- imageclipper.cpp	(revision 102)
++++ imageclipper.cpp	(working copy)
+@@ -35,7 +35,7 @@
+ #include "cvaux.h"
+ #include "cxcore.h"
+ #include "highgui.h"
+-#include <stdio.h>
++#include <cstdio>
+ #include <math.h>
+ #include <iostream>
+ #include <string>
+Index: Makefile
+===================================================================
+--- Makefile	(revision 102)
++++ Makefile	(working copy)
+@@ -8,8 +8,8 @@
+ CC = g++
+ LINK = g++
+ INSTALL = install
+-CFLAGS = `pkg-config --cflags opencv` -I ~/usr/include/boost-1_36 -I.
+-LFLAGS = `pkg-config --libs opencv` -L ~/usr/lib -lboost_system-gcc41-mt -lboost_filesystem-gcc41-mt
++CFLAGS = `pkg-config --cflags opencv` -I /usr/include/boost/
++LFLAGS = `pkg-config --libs opencv` -L /usr/lib  -lboost_filesystem -lboost_system
+ all: imageclipper
+ 
+ imageclipper.o: imageclipper.cpp

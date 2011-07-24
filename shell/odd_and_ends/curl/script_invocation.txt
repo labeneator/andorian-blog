@@ -1,0 +1,59 @@
+$ sh -x /home/theUsername/bin/curl_wiki.sh "Example diagram" Example_net_diag.dia ~/Example_net_diag.dia
++ wpdesc=Example diagram
++ wpremotefile=Example_net_diag.dia
++ wplocalfile=/home/theUsername/Example_net_diag.dia
++ WIKIURI=https://wiki.domain.net/wiki/index.php
++ WIKIUSERNAME=theUsername
++ WIKIPASSWORD=thePassword
++ curl -k -d wpName=theUsername&wpPassword=thePassword&wpLoginattempt=Log in -c cookie https://wiki.domain.net/wiki/index.php?title=Special:UserLogin&amp;action=submitlogin&amp;type=login
++ curl -v -k -b cookie -F wpDestFile=Example_net_diag.dia -F wpUpload='Upload file' -F wpIgnoreWarning=true -F wpUploadFile=@/home/theUsername/Example_net_diag.dia -F wpUploadDescription=Example diagram https://wiki.domain.net/wiki/index.php/Special:Upload
+* About to connect() to wiki.domain.net port 443 (#0)
+*   Trying 2011:cccc:xx:xx::234... connected
+* Connected to wiki.domain.net (2011:cccc:xx:xx::234) port 443 (#0)
+* successfully set certificate verify locations:
+*   CAfile: none
+  CApath: /etc/ssl/certs
+* SSLv3, TLS handshake, Client hello (1):
+* SSLv3, TLS handshake, Server hello (2):
+* SSLv3, TLS handshake, CERT (11):
+* SSLv3, TLS handshake, Server key exchange (12):
+* SSLv3, TLS handshake, Server finished (14):
+* SSLv3, TLS handshake, Client key exchange (16):
+* SSLv3, TLS change cipher, Client hello (1):
+* SSLv3, TLS handshake, Finished (20):
+* SSLv3, TLS change cipher, Client hello (1):
+* SSLv3, TLS handshake, Finished (20):
+* SSL connection using DHE-RSA-AES256-SHA
+* Server certificate:
+*        subject: CN=wiki.domain.net; O=ORG; C=KE
+*        start date: 2010-10-04 13:14:04 GMT
+*        expire date: 2012-10-03 13:14:04 GMT
+*        common name: wiki.domain.net (matched)
+*        issuer: CN=SomeCA
+*        SSL certificate verify result: unable to get local issuer certificate (20), continuing anyway.
+> POST /wiki/index.php/Special:Upload HTTP/1.1
+> User-Agent: curl/7.21.3 (x86_64-pc-linux-gnu) libcurl/7.21.3 OpenSSL/0.9.8o zlib/1.2.3.4 libidn/1.18 libssh2/1.2.6
+> Host: wiki.domain.net
+> Accept: */*
+> Cookie: wikidbUserName=theUsername; wikidbUserID=2; wikidb_session=hemdm3ornhrudim16057n7nqf4
+> Content-Length: 3626
+> Expect: 100-continue
+> Content-Type: multipart/form-data; boundary=----------------------------8921da3b4f11
+> 
+< HTTP/1.1 100 Continue
+< HTTP/1.1 302 Found
+< Date: Tue, 01 Mar 2011 08:17:12 GMT
+< Server: Apache/2.2.8 (CentOS)
+< X-Powered-By: PHP/5.1.6
+< Vary: Accept-Encoding,Cookie
+< X-Vary-Options: Accept-Encoding;list-contains=gzip,Cookie;string-contains=wikidbToken;string-contains=wikidbLoggedOut;string-contains=wikidb_session
+< Expires: Thu, 01 Jan 1970 00:00:00 GMT
+< Cache-Control: private, must-revalidate, max-age=0
+< Location: https://wiki.domain.net/wiki/index.php/File:Example_net_diag.dia
+< Content-Length: 0
+< Connection: close
+< Content-Type: text/html; charset=utf-8
+< 
+* Closing connection #0
+* SSLv3, TLS alert, Client hello (1):
+
