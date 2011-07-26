@@ -3,37 +3,20 @@
 * Can be reworked to depend on pypng instead of matplotlib
 
 == Sample usage ==
-Usage:
-$ python2.7 simple_decode.py --help
-Usage: 
-Hide/Unhide info in images as described in this post:
-    http://blog.wolfram.com/2010/07/08/doing-spy-stuff-with-mathematica/
+$ python simple_decode.py -E
+--input_file README --encode_file matilda.png --steg_file haiya1.png
 
-usage: simple_decode.py [options]
-    
+$ file haiya1.png
+haiya1.png: PNG image data, 450 x 450, 8-bit/color RGB, non-interlaced
 
-Options:
-  -h, --help            show this help message and exit
-  -v DEBUG, --verbose=DEBUG
-                        Debug. Higher integers increases verbosity
-  -e ENCODED_FILE, --encoded_file=ENCODED_FILE
-                        Encoded PNG file to work with. Default is
-                        steg_chicken_secret.png
-  -d DATA_FILE, --data_file=DATA_FILE
-                        File with decoded data or with data to encode.
+$ python simple_decode.py -D
+--steg_file haiya1.png  --output_file aha1
 
-=== Decoding ===
-$ python2.7 simple_decode.py -e steg_chicken_secret.png -d chicken.txt
-$ cat chicken.txt ;echo
-This is a secret message.
+$ file aha1
+aha1: ASCII text
 
-$ python2.7 simple_decode.py -e alice.png -d alice.txt
-$ file alice.txt 
-alice.txt: UTF-8 Unicode English text, with very long lines, with no line terminators
+$ wc README aha1
+   39   158  1355 README
+   39   158 75937 aha1
+   78   316 77292 total
 
-$ python2.7 simple_decode.py -e finalImage.png -d data.jpg
-$ file data.jpg 
-data.jpg: JPEG image data, JFIF standard 1.01, comment: "Created by Wolfram Mathematica "
-
-=== Encoding ===
-TODO
