@@ -3,7 +3,7 @@
 
 """
 Python source code
-Last modified: 26 Jul 2011 - 20:03
+Last modified: 26 Jul 2011 - 20:11
 Last author: Laban Mwangi
 
 This is a simple test program that aims to decode the output of the steg
@@ -11,11 +11,11 @@ encoded images found in a wolfram blog article. The said article can be found
 at http://blog.wolfram.com/2010/07/08/doing-spy-stuff-with-mathematica/
 """
 import optparse
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import numpy as np
 import Image
-import png
+#import png
 
 # If we were to fetch the image..
 #import urllib2
@@ -26,9 +26,8 @@ import png
 #open("steg-chicken_secret.png","wb").write(img)
 class FileDoesnotExistException(Exception):
     """thrown when a file could not be found"""
-    def __init__(self, value):
+    def __init__(self):
         super(FileDoesnotExistException, self).__init__()
-        self.parameter = value
 
     def __str__(self):
         return "%s" % (repr(self.parameter))
@@ -54,7 +53,13 @@ class Steganography(object):
     def __init__(self):
         super(Steganography, self).__init__()
         # Powers of two vector
-        self.m = np.array([128, 64, 32, 16, 8, 4, 2, 1])
+        self.bit2byte = np.array([128, 64, 32, 16, 8, 4, 2, 1])
+        self.data_to_encode = None
+        self.npimg = None
+        self.usable_bits = None
+        self.upscaled = None
+        self.msg_bytes = None
+
 
     def read_image(self, filename):
         """
@@ -127,9 +132,10 @@ class Steganography(object):
         self.usable_bits = bits.ravel()[:usable_bit_count]
         self.usable_bits.resize(self.usable_bits.size/8, 8)
 
-        # Convert bits into bytes by multiplying the bit vectors with a powers of 2
-        # vector, then making sure our values are unsigned 8bit ints(shorts?) 
-        msg_array = np.array(map(np.sum,self.usable_bits * self.m)).astype('uint8')
+        # Convert bits into bytes by multiplying the bit vectors with a powers
+        # of 2 vector, then making sure our values are unsigned 8bit ints 
+        msg_array = np.array(
+            map(np.sum,self.usable_bits * self.bit2byte)).astype('uint8')
         self.msg_bytes = msg_array.tostring()
 
     def push_image_bits(self):
@@ -151,7 +157,6 @@ class Steganography(object):
         # Add data to zero'd array. Rest of zeros are pads
         bit_array_padded[:bit_array.size] = bit_array
 
-        self.bit_array_padded = bit_array_padded
         # Push data into image array
         denorm |= bit_array_padded 
 
@@ -223,17 +228,18 @@ Image file with hidden data in it,
 
 
     (options, args) = parser.parse_args()
+    del args
      
-    st = Steganography()
+    steg = Steganography()
     if options.decode:
         if not options.steg_file or not options.output_file:
             raise parser.error("""
 --output_file and --steg_file are required for the decode operation.
 Please see the --help option.
                                """)
-        st.read_image(options.steg_file)
-        st.extract_image_bits()
-        st.file_save(options.output_file)
+        steg.read_image(options.steg_file)
+        steg.extract_image_bits()
+        steg.file_save(options.output_file)
     elif options.encode:
         if not options.input_file   \
         or not options.encode_file  \
@@ -243,10 +249,10 @@ Please see the --help option.
 operation.
 Please see the --help option.
                                """)
-        st.file_read(options.input_file)
-        st.read_image(options.encode_file)
-        st.push_image_bits()
-        st.write_image(options.steg_file)
+        steg.file_read(options.input_file)
+        steg.read_image(options.encode_file)
+        steg.push_image_bits()
+        steg.write_image(options.steg_file)
     else:
         raise parser.error(
             "Unknown operation. Must be --encode or --decode. Try --help")
