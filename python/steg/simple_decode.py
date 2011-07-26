@@ -3,7 +3,7 @@
 
 """
 Python source code
-Last modified: 26 Jul 2011 - 20:16
+Last modified: 26 Jul 2011 - 20:22
 Last author: Laban Mwangi
 
 This is a simple test program that aims to decode the output of the steg
@@ -87,18 +87,16 @@ class Steganography(object):
             data = self.upscaled.astype("uint8")
             # Restore original array shape
             data.resize(self.npimg.shape)
-            print data[:1]
-            print self.npimg[:1] * 255
 
             #from IPython.Debugger import Tracer
             #debug_here = Tracer()
             #debug_here()
 
-            #PIL
+            #PIL usage
             img = Image.fromarray(data, 'RGB')
             img.save(filename)
 
-#            #pypng
+#            #pypng usage
 #            column_count = self.npimg.shape[0]
 #            row_count = self.npimg.shape[1]
 #            plane_count = self.npimg.shape[2]
@@ -113,6 +111,7 @@ class Steganography(object):
 #                            np.reshape(data,
 #                               (-1, column_count * plane_count)))
 
+            # This fails. 
             #mpimg.imsave(filename, data)
         except IOError:
             raise FileDoesnotExistException("File does not seem to exist. %s" %
