@@ -3,7 +3,7 @@
 
 """
 Python source code
-Last modified: 26 Jul 2011 - 20:11
+Last modified: 26 Jul 2011 - 20:16
 Last author: Laban Mwangi
 
 This is a simple test program that aims to decode the output of the steg
@@ -24,6 +24,8 @@ import Image
 #img=u.read()
 #u.close()
 #open("steg-chicken_secret.png","wb").write(img)
+
+
 class FileDoesnotExistException(Exception):
     """thrown when a file could not be found"""
     def __init__(self):
@@ -45,8 +47,6 @@ class GenericException(Exception):
         return "Error: %s" % (repr(self.parameter))
 
 
-
-
 class Steganography(object):
 
     """Steganography class for simple png images"""
@@ -59,7 +59,6 @@ class Steganography(object):
         self.usable_bits = None
         self.upscaled = None
         self.msg_bytes = None
-
 
     def read_image(self, filename):
         """
@@ -85,20 +84,20 @@ class Steganography(object):
         # Write image
         try:
             # Normalize
-            data = self.upscaled.astype("uint8") 
+            data = self.upscaled.astype("uint8")
             # Restore original array shape
             data.resize(self.npimg.shape)
             print data[:1]
-            print self.npimg[:1]* 255
+            print self.npimg[:1] * 255
 
             #from IPython.Debugger import Tracer
             #debug_here = Tracer()
             #debug_here()
-            
+
             #PIL
             img = Image.fromarray(data, 'RGB')
             img.save(filename)
-            
+
 #            #pypng
 #            column_count = self.npimg.shape[0]
 #            row_count = self.npimg.shape[1]
@@ -110,19 +109,19 @@ class Steganography(object):
 #            # This does not seem to work
 #            pypngshape = (column_count, row_count * plane_count)
 #            pngfile = open(filename, "wb")
-#            pngWriter.write(pngfile, 
-#                            np.reshape(data, (-1, column_count * plane_count)))
+#            pngWriter.write(pngfile,
+#                            np.reshape(data,
+#                               (-1, column_count * plane_count)))
 
             #mpimg.imsave(filename, data)
         except IOError:
             raise FileDoesnotExistException("File does not seem to exist. %s" %
                                                filename)
 
-
     def extract_image_bits(self):
         """
         extract_image_bits fetches the least significant bit in each of pixel.
-        This means that a given image carries 3 bits per pixel for RGB files. 
+        This means that a given image carries 3 bits per pixel for RGB files.
         Total capacity is W * H * 3 bits
         """
         # Extract data by anding last bit with 1
@@ -130,26 +129,26 @@ class Steganography(object):
         # Make sure we only touch bytes. Discard trailing bits
         usable_bit_count = 8 * (bits.size / 8)
         self.usable_bits = bits.ravel()[:usable_bit_count]
-        self.usable_bits.resize(self.usable_bits.size/8, 8)
+        self.usable_bits.resize(self.usable_bits.size / 8, 8)
 
         # Convert bits into bytes by multiplying the bit vectors with a powers
-        # of 2 vector, then making sure our values are unsigned 8bit ints 
+        # of 2 vector, then making sure our values are unsigned 8bit ints
         msg_array = np.array(
-            map(np.sum,self.usable_bits * self.bit2byte)).astype('uint8')
+            map(np.sum, self.usable_bits * self.bit2byte)).astype('uint8')
         self.msg_bytes = msg_array.tostring()
 
     def push_image_bits(self):
         """Gets bytes to encode and pushes them into an image array"""
         bits = []
-        # Convert bytes to an array of an array of bits 
+        # Convert bytes to an array of an array of bits
         for byte in self.data_to_encode:
-            bits.append(map(lambda y:(byte>>y)&1, range(7, -1, -1)))
+            bits.append(map(lambda y: (byte >> y) & 1, range(7, -1, -1)))
 
         # Zero out LSB
         self.upscaled &= 254
 
         # Flatten arrays
-        bit_array  = np.array(bits).ravel() 
+        bit_array = np.array(bits).ravel()
         denorm = self.upscaled.ravel()
 
         # Generate a zero'd array with the right shape
@@ -158,7 +157,7 @@ class Steganography(object):
         bit_array_padded[:bit_array.size] = bit_array
 
         # Push data into image array
-        denorm |= bit_array_padded 
+        denorm |= bit_array_padded
 
         self.upscaled = denorm
 
@@ -171,19 +170,19 @@ class Steganography(object):
             hdl.close()
         except IOError:
             raise FileDoesnotExistException(
-                "Could not open file to write %s" % filename )
-
+                "Could not open file to write %s" % filename)
 
     def file_read(self, filename):
         """file_read reads a file to encode/hide  """
         try:
-            hdl = open(filename,"rb")
+            hdl = open(filename, "rb")
             data = hdl.read()
             hdl.close()
             self.data_to_encode = np.fromstring(data, dtype=np.uint8)
         except IOError:
             raise FileDoesnotExistException(
-                "Could not open file to read %s" % filename )
+                "Could not open file to read %s" % filename)
+
 
 def main():
     """Main function. Called when this file is a shell script"""
@@ -199,21 +198,21 @@ http://blog.wolfram.com/2010/07/08/doing-spy-stuff-with-mathematica/
                       help="Debug. Higher integers increases verbosity")
 
     parser.add_option("-i", "--input_file", dest="input_file",
-                      type="str", help="Input file with data to encode.") 
+                      type="str", help="Input file with data to encode.")
 
     parser.add_option("-o", "--output_file", dest="output_file",
                       type="str", help="Output file with decoded data")
 
     parser.add_option("-e", "--encode_file", dest="encode_file",
                       type="str", help="""
-Image file with hidden data in it, 
+Image file with hidden data in it,
  - Read on encode to provide a template to hide bits.
-                      """) 
+                      """)
 
     parser.add_option("-s", "--steg_file", dest="steg_file",
                       type="str",
                       help="""
-Image file with hidden data in it, 
+Image file with hidden data in it,
  - Read on decode operation to extract bits.
  - Written to on decode to hide bits.
                       """)
@@ -226,10 +225,9 @@ Image file with hidden data in it,
                       action="store_true",
                       help="Operation is to encode a steg output file")
 
-
     (options, args) = parser.parse_args()
     del args
-     
+
     steg = Steganography()
     if options.decode:
         if not options.steg_file or not options.output_file:
@@ -256,8 +254,6 @@ Please see the --help option.
     else:
         raise parser.error(
             "Unknown operation. Must be --encode or --decode. Try --help")
-
-
 
 
 if __name__ == '__main__':
